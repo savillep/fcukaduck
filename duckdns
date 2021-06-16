@@ -1,0 +1,73 @@
+#!/bin/bash
+# ------------------------------------------------------------------------------
+# Maintainer:   Peter Saville   
+# Contact:      
+# 
+# Description:
+# A script to create an automated method to setup duckdns and monitor and update
+# Setup:
+# $HOME/.config/duckdns/   directory
+# duck.config       Store the url used to connect to the duckdns server via curl
+# duck.log          Store a log history 
+#
+# TODO
+# - move to systemd logging
+# - auto generate .timer and .service systemd units
+# - if no duckdns url exists, prompt for one
+#   - better explanation : Add README.md
+# - add more informative logging from curl
+#   - more robust success failure checking
+#
+# Change Log:
+# Created: Wed 16 Jun 2021 09:08:22 AEST
+# Modified: 
+# ------------------------------------------------------------------------------
+
+VERSION=0.0.1
+USAGE=""
+
+CURRENT_EXT_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+DUCKDNS_IP=$(awk '/DUCKDNS_IP/{print $NF}' $HOME/.config/duckdns/duck.config)
+LOGFILE=$HOME/.config/duckdns/duck.log
+CONFIGFILE=$HOME/.config/duckdns/duck.config
+
+# Setup duckdns - check first for dir then files, create them if required
+if ! [ -d $HOME/.config/duckdns ]; then mkdir -p $HOME/.config/duckdns; fi
+if ! [ -f $CONFIGFILE ]; then 
+    touch $CONFIGFILE
+    echo "DUCKDNS_URL " >> $CONFIGFILE
+    echo "DUCKDNS_IP " >> $CONFIGFILE
+    echo "RUN_COUNT " >> $CONFIGFILE
+fi
+if ! [ -f $LOGFILE ]; then touch $LOGFILE; fi
+
+# Read the log to check the gateways external ip and what has been last sent to
+# duckdns.org
+
+# Check the gateways current external ip against what has been recorded as the
+# last ip address sent to duckdns.org
+
+if  [[ $CURRENT_EXT_IP != $DUCKDNS_IP ]]; then
+    DUCKDNS_URL=$(awk '/DUCKDNS_URL/{print $NF}' $HOME/.config/duckdns/duck.config)
+    if [ $DUCKDNS_URL != '' ]; then
+        curl -s -o $LOGFILE --url $DUCKDNS_URL
+        if [ $? -eq 0 ]; then
+            echo -e "\n$(date) OK Updated DUCKDNS from $DUCKDNS_IP to $CURRENT_EXT_IP" >> $LOGFILE
+            sed -ie "s/DUCKDNS_IP.*/DUCKDNS_IP $CURRENT_EXT_IP/" $CONFIGFILE
+        else
+            echo -e "\n$(date) FAIL We seem to have a problem..." >> $LOGFILE
+        fi
+    else
+        echo -e "\n$(date) CONFIG ERROR No duckdns url was found..." >> $LOGFILE
+    fi
+fi
+
+
+
+# while read -e name value
+# do
+#     if [ $name = "DUCKDNS_IP" ]; then
+#         DUCKDNS_IP=$value
+#     fi
+# done < $HOME/.config/duckdns/duck.log
+
