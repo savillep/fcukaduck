@@ -48,7 +48,7 @@ if  [[ $CURRENT_EXT_IP != $DUCKDNS_IP ]]; then
         curl -s -o $LOGFILE --url $DUCKDNS_URL
         if [ $? -eq 0 ]; then
             echo -e "\n$(date) OK Updated DUCKDNS from $DUCKDNS_IP to $CURRENT_EXT_IP" >> $LOGFILE
-            sed -ie "s/DUCKDNS_IP.*/DUCKDNS_IP $CURRENT_EXT_IP/" $CONFIGFILE
+            sed -i "/DUCKDNS_IP/s/DUCK.*/DUCKDNS_IP $CURRENT_EXT_IP/" $CONFIGFILE
         else
             echo -e "\n$(date) FAIL We seem to have a problem..." >> $LOGFILE
         fi
