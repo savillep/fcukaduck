@@ -27,9 +27,9 @@ VERSION=0.0.1
 USAGE=""
 
 CURRENT_EXT_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-DUCKDNS_IP=$(awk '/DUCKDNS_IP/{print $NF}' $HOME/.config/duckdns/duck.config)
 LOGFILE=$HOME/.config/duckdns/duck.log
 CONFIGFILE=$HOME/.config/duckdns/duck.config
+DUCKDNS_IP=$(awk '/DUCKDNS_IP/{print $NF}' $CONFIGFILE)
 
 # Setup duckdns - check first for dir then files, create them if required
 if ! [ -d $HOME/.config/duckdns ]; then mkdir -p $HOME/.config/duckdns; fi
@@ -48,7 +48,7 @@ if ! [ -f $LOGFILE ]; then touch $LOGFILE; fi
 # last ip address sent to duckdns.org
 
 if  [[ $CURRENT_EXT_IP != $DUCKDNS_IP ]]; then
-    DUCKDNS_URL=$(awk '/DUCKDNS_URL/{print $NF}' $HOME/.config/duckdns/duck.config)
+    DUCKDNS_URL=$(awk '/DUCKDNS_URL/{print $NF}' $CONFIGFILE)
     if [ $DUCKDNS_URL != '' ]; then
         curl -s -o $LOGFILE --url $DUCKDNS_URL
         if [ $? -eq 0 ]; then
