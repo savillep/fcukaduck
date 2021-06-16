@@ -18,9 +18,7 @@
 # - add more informative logging from curl
 #   - more robust success failure checking
 #
-# Change Log:
 # Created: Wed 16 Jun 2021 09:08:22 AEST
-# Modified: 
 # ------------------------------------------------------------------------------
 
 VERSION=0.0.1
@@ -41,9 +39,6 @@ if ! [ -f $CONFIGFILE ]; then
 fi
 if ! [ -f $LOGFILE ]; then touch $LOGFILE; fi
 
-# Read the log to check the gateways external ip and what has been last sent to
-# duckdns.org
-
 # Check the gateways current external ip against what has been recorded as the
 # last ip address sent to duckdns.org
 
@@ -61,7 +56,6 @@ if  [[ $CURRENT_EXT_IP != $DUCKDNS_IP ]]; then
         echo -e "\n$(date) CONFIG ERROR No duckdns url was found..." >> $LOGFILE
     fi
 fi
-
 
 
 # while read -e name value
